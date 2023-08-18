@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 )
 
@@ -18,14 +19,14 @@ type SnippetModel struct {
 }
 
 func (m *SnippetModel) Insert(title string, content string, expires int) (int, error) {
-	stmt := `INSERT INTO snippets (title, content, created, expires)
-	VALUES ($1, $2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '1 DAY')
-	RETURNING id;`
+	stmt := `insert into snippets (title, content, created, expires) 
+	values ($1, $2, current_timestamp, current_timestamp + '%d day') returning id;`
+	stmt = fmt.Sprintf(stmt, expires)
 
 	var id int
-	err := m.DB.QueryRow(stmt, title, content, expires).Scan(&id)
+	err := m.DB.QueryRow(stmt, title, content).Scan(&id)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("error inserting snippet into database: %v", err)
 	}
 
 	return id, nil

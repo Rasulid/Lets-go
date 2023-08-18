@@ -18,6 +18,8 @@ type applicatiion struct {
 
 func main() {
 	var addr string
+	loginfo := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	logerr := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	flag.StringVar(&addr, "addr", ":4000", "IP address")
 
@@ -25,7 +27,7 @@ func main() {
 
 	//database
 
-	dsn := "user=rasulabduvaitov, dbname=snippetbox, sslmode=verify-full"
+	dsn := "host=localhost dbname=snippetbox sslmode=disable password=123rasulQq"
 	db, er := sql.Open("postgres", dsn)
 	if er != nil {
 		log.Fatalf(er.Error())
@@ -40,9 +42,6 @@ func main() {
 	defer f.Close()
 
 	// Config Logs
-
-	loginfo := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	logerr := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	app := &applicatiion{
 		errorLog: logerr,

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -61,8 +60,6 @@ func (app *applicatiion) snipptCreate(w http.ResponseWriter, r *http.Request) {
 
 	id, err := app.snippet.Insert(title, content, expires)
 	if err != nil {
-		println("Error inserting snippet")
-		log.Println("___________", err.Error())
 		app.serverError(w, err)
 		return
 	}
