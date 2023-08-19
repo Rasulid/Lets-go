@@ -1,37 +1,49 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
+	"snippetbox.rasulabduvaitov.net/internal/models"
 	"strconv"
 )
 
 func (app *applicatiion) homePage(w http.ResponseWriter, r *http.Request) {
-
-	files := []string{
-		"./ui/html/base.tmpl",
-		"./ui/html/partials/nav.tmpl",
-		"./ui/html/pages/home.tmpl",
-	}
-
 	if r.URL.Path != "/" {
 		app.notFound(w)
 		return
 	}
 
-	tmp, err := template.ParseFiles(files...)
+	snippets, err := app.snippet.Latest()
 	if err != nil {
-		app.errorLog.Println(err.Error())
 		app.serverError(w, err)
 		return
 	}
 
-	err = tmp.ExecuteTemplate(w, "base", nil)
-	if err != nil {
-		app.errorLog.Println(err.Error())
-		app.serverError(w, err)
+	for _, snippet := range snippets {
+		fmt.Fprintf(w, "%+v\n", snippet)
 	}
+
+	//
+	//
+	//files := []string{
+	//	"./ui/html/base.tmpl",
+	//	"./ui/html/partials/nav.tmpl",
+	//	"./ui/html/pages/home.tmpl",
+	//}
+	//
+	//tmp, err := template.ParseFiles(files...)
+	//if err != nil {
+	//	app.errorLog.Println(err.Error())
+	//	app.serverError(w, err)
+	//	return
+	//}
+	//
+	//err = tmp.ExecuteTemplate(w, "base", nil)
+	//if err != nil {
+	//	app.errorLog.Println(err.Error())
+	//	app.serverError(w, err)
+	//}
 }
 
 // LSP => Language Server Protocol
@@ -44,7 +56,17 @@ func (app *applicatiion) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Display a specific snippet with ID %d...", id)
+	snippet, err := app.snippet.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+	// Write the snippet data as a plain-text HTTP response body.
+	fmt.Fprintf(w, "%+v", snippet)
 }
 
 func (app *applicatiion) snipptCreate(w http.ResponseWriter, r *http.Request) {
