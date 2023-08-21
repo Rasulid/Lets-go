@@ -8,7 +8,7 @@ import (
 )
 
 type Snippet struct {
-	ID      int
+	ID      int `db:"id"`
 	Title   string
 	Content string
 	Created time.Time
