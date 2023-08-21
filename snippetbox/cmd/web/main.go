@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"flag"
 	_ "github.com/lib/pq"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -11,9 +12,10 @@ import (
 )
 
 type applicatiion struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	snippet  *models.SnippetModel
+	errorLog       *log.Logger
+	infoLog        *log.Logger
+	snippet        *models.SnippetModel
+	templateChache map[string]*template.Template
 }
 
 func main() {
@@ -43,10 +45,18 @@ func main() {
 
 	// Config Logs
 
+	// tamplate cache
+
+	tamplateCache, err := newTemplateCache()
+	if err != nil {
+		logerr.Fatal(err)
+	}
+
 	app := &applicatiion{
-		errorLog: logerr,
-		infoLog:  loginfo,
-		snippet:  &models.SnippetModel{DB: db},
+		errorLog:       logerr,
+		infoLog:        loginfo,
+		snippet:        &models.SnippetModel{DB: db},
+		templateChache: tamplateCache,
 	}
 	//
 
@@ -63,6 +73,6 @@ func main() {
 	}
 
 	loginfo.Printf("Starting Server on %s", addr)
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	logerr.Fatal(err)
 }
