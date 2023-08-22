@@ -58,11 +58,6 @@ func main() {
 		snippet:        &models.SnippetModel{DB: db},
 		templateChache: tamplateCache,
 	}
-	//
-
-	// ROUTER
-
-	// SERVER AND LOGS
 
 	// SERVER Configuration
 
